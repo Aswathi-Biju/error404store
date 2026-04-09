@@ -87,6 +87,8 @@ No external frameworks were used to keep the project lightweight and focused on 
 2. Open `index.html` in your browser
 
 That’s it.
+Here's the live website:
+https://error404store.vercel.app/
 
 ---
 
