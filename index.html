@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error 404 Store — Products Not Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESIGN TOKENS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --ink:        #05050a;
+  --ink2:       #0b0b14;
+  --ink3:       #13131e;
+  --ink4:       #1c1c2a;
+  --line:       rgba(255,255,255,0.06);
+  --line2:      rgba(255,255,255,0.11);
+  --dim:        #3a3a52;
+  --muted:      #6e6e8a;
+  --soft:       #a0a0bb;
+  --text:       #eeeef2;
+  --lime:       #c8ff57;
+  --lime-glow:  rgba(200,255,87,0.15);
+  --lime-faint: rgba(200,255,87,0.06);
+  --red:        #ff4d6d;
+  --amber:      #ffbe0b;
+  --cyan:       #00d4ff;
+  --font-h:     'Outfit', sans-serif;
+  --font-m:     'Space Mono', monospace;
+  --r:          16px;
+  --r-sm:       10px;
+  --ease:       cubic-bezier(0.4, 0, 0.2, 1);
+  --spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-h);
+  font-weight: 400;
+  line-height: 1.65;
+  overflow-x: hidden;
+  cursor: none;
+}
+a { color:inherit; text-decoration:none; }
+button { cursor:none; font-family:var(--font-h); border:none; outline:none; background:none; color:inherit; }
+input,select { font-family:var(--font-h); }
+::selection { background:var(--lime); color:#000; }
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:var(--ink); }
+::-webkit-scrollbar-thumb { background:var(--dim); border-radius:2px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATED BACKGROUND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#bg-canvas {
+  position: fixed; inset:0; z-index:0;
+  pointer-events: none;
+}
+.noise-overlay {
+  position: fixed; inset:0; z-index:1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CURSOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#cursor { position:fixed; top:0; left:0; z-index:9999; pointer-events:none; }
+.c-dot {
+  width:7px; height:7px;
+  background: var(--lime);
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  transition: width .15s, height .15s, background .2s;
+  box-shadow: 0 0 10px var(--lime);
+}
+.c-ring {
+  width:38px; height:38px;
+  border:1.5px solid rgba(200,255,87,0.45);
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  transition: width .1s, height .1s, border-color .2s;
+}
+body.cursor-hover .c-dot { width:14px; height:14px; background:var(--lime); }
+body.cursor-hover .c-ring { width:54px; height:54px; border-color:rgba(200,255,87,0.7); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   NAVBAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#nav {
+  position: fixed; top:0; left:0; right:0; z-index:400;
+  height: 66px;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 0 52px;
+  background: rgba(5,5,10,0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--line);
+  transition: background .4s;
+}
+#nav.scrolled { background: rgba(5,5,10,0.9); }
+.nav-logo {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  display:flex; align-items:center; gap:8px;
+}
+.nav-logo .logo-badge {
+  display:inline-block;
+  padding:2px 8px;
+  background: var(--lime);
+  color:#000;
+  border-radius:4px;
+  font-size:0.65rem;
+  font-weight:700;
+  letter-spacing:0.05em;
+  font-family: var(--font-m);
+}
+.nav-links {
+  display:flex; gap:36px; list-style:none;
+}
+.nav-links a {
+  font-size:0.78rem; font-weight:500;
+  color:var(--muted); letter-spacing:0.06em; text-transform:uppercase;
+  transition: color .25s;
+  position:relative;
+}
+.nav-links a::after {
+  content:'';
+  position:absolute; bottom:-3px; left:0; right:0; height:1px;
+  background:var(--lime); transform:scaleX(0); transition:transform .3s var(--ease);
+}
+.nav-links a:hover { color:var(--text); }
+.nav-links a:hover::after { transform:scaleX(1); }
+.nav-r { display:flex; align-items:center; gap:16px; }
+.cart-trigger {
+  display:flex; align-items:center; gap:9px;
+  padding:9px 20px;
+  background:var(--ink3);
+  border:1px solid var(--line2);
+  border-radius:100px;
+  font-size:0.78rem; font-weight:500;
+  transition: all .25s;
+}
+.cart-trigger:hover { border-color:var(--lime); color:var(--lime); }
+.cart-num {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px;
+  background:var(--lime);
+  color:#000;
+  border-radius:50%;
+  font-size:0.68rem; font-weight:800;
+  font-family:var(--font-m);
+  transition:transform .4s var(--spring);
+}
+.cart-num.pop { transform:scale(1.5); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HERO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#hero {
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center;
+  padding:100px 24px 80px;
+  position:relative; overflow:hidden;
+  z-index:2;
+}
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:7px 18px;
+  background: var(--lime-faint);
+  border:1px solid rgba(200,255,87,0.2);
+  border-radius:100px;
+  font-family:var(--font-m);
+  font-size:0.68rem; color:var(--lime); letter-spacing:0.12em;
+  margin-bottom:36px;
+  opacity:0; animation: riseIn .8s .15s forwards;
+}
+.hero-eyebrow::before {
+  content:''; width:6px; height:6px;
+  background:var(--lime); border-radius:50%;
+  animation: blink 1.8s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+.hero-h1 {
+  font-size: clamp(3.2rem, 9vw, 8.5rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+  color: var(--text);
+  opacity:0; animation: riseIn .9s .3s forwards;
+}
+.hero-h1 .lime { color:var(--lime); display:block; }
+.hero-sub {
+  margin-top:28px;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color:var(--muted);
+  max-width:520px; line-height:1.7;
+  opacity:0; animation:riseIn .9s .5s forwards;
+}
+.hero-sub strong { color:var(--soft); font-weight:500; }
+
+/* ── STATS CARDS ── */
+.stats-row {
+  display:flex; gap:20px; flex-wrap:wrap; justify-content:center;
+  margin-top:60px;
+  opacity:0; animation:riseIn .9s .7s forwards;
+}
+.stat-card {
+  background:var(--ink3);
+  border:1px solid var(--line2);
+  border-radius:var(--r);
+  padding:20px 32px;
+  text-align:center;
+  position:relative; overflow:hidden;
+  transition: border-color .3s, transform .3s;
+}
+.stat-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, var(--lime), transparent);
+  opacity:0; transition:opacity .3s;
+}
+.stat-card:hover { border-color:rgba(200,255,87,0.3); transform:translateY(-3px); }
+.stat-card:hover::before { opacity:1; }
+.stat-n {
+  font-size:2.4rem; font-weight:900; letter-spacing:-0.04em;
+  font-family:var(--font-m);
+  color:var(--text);
+  display:block;
+}
+.stat-n.lime-n { color:var(--lime); }
+.stat-label { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px; }
+
+/* ── CTA ── */
+.hero-cta {
+  display:flex; gap:14px; margin-top:48px;
+  opacity:0; animation:riseIn .9s .9s forwards;
+}
+.btn-lime {
+  padding:14px 34px;
+  background:var(--lime); color:#000;
+  border-radius:100px; font-weight:700; font-size:0.9rem;
+  letter-spacing:0.01em;
+  position:relative; overflow:hidden;
+  transition: transform .25s var(--spring), box-shadow .25s;
+}
+.btn-lime:hover { transform:translateY(-3px); box-shadow:0 10px 40px rgba(200,255,87,0.4); }
+.btn-lime:active { transform:translateY(0); }
+.btn-ghost {
+  padding:14px 34px;
+  background:transparent; color:var(--muted);
+  border-radius:100px;
+  border:1px solid var(--line2);
+  font-size:0.9rem;
+  transition: all .25s;
+}
+.btn-ghost:hover { border-color:var(--soft); color:var(--text); }
+
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION LAYOUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.container { max-width:1220px; margin:0 auto; padding:0 28px; }
+section { position:relative; z-index:2; }
+.sec-label {
+  font-family:var(--font-m);
+  font-size:0.65rem; color:var(--lime); letter-spacing:0.18em; text-transform:uppercase;
+  margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.sec-label::before { content:'//'; opacity:0.5; }
+.sec-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight:800; letter-spacing:-0.03em; line-height:1.1;
+  color:var(--text); margin-bottom:12px;
+}
+.sec-body { color:var(--muted); font-size:0.92rem; max-width:460px; line-height:1.7; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CATEGORY FILTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#cat-section {
+  padding:20px 0 0;
+  border-bottom:1px solid var(--line);
+}
+.cat-bar {
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:0 28px 20px;
+  max-width:1220px; margin:0 auto;
+}
+.cat-btn {
+  padding:9px 22px;
+  border-radius:100px;
+  border:1px solid var(--line2);
+  background:var(--ink3);
+  font-size:0.78rem; font-weight:500; color:var(--muted);
+  transition: all .25s;
+  position:relative; overflow:hidden;
+}
+.cat-btn::before {
+  content:'';
+  position:absolute; inset:0;
+  background:var(--lime-faint); opacity:0; transition:opacity .2s;
+}
+.cat-btn:hover::before, .cat-btn.on::before { opacity:1; }
+.cat-btn:hover, .cat-btn.on { border-color:rgba(200,255,87,0.35); color:var(--lime); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PRODUCTS SECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#shop { padding:80px 0 100px; }
+.shop-header {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  margin-bottom:44px; flex-wrap:wrap; gap:20px;
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:18px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PRODUCT CARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.p-card {
+  background:var(--ink3);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  overflow:hidden;
+  cursor:none;
+  transform-style:preserve-3d;
+  transition:border-color .3s, box-shadow .3s;
+  opacity:0; transform:translateY(28px);
+}
+.p-card.in {
+  animation:cardIn .55s var(--ease) forwards;
+}
+@keyframes cardIn {
+  to { opacity:1; transform:translateY(0); }
+}
+.p-card:hover {
+  border-color:rgba(200,255,87,0.22);
+  box-shadow: 0 0 0 1px rgba(200,255,87,0.06),
+              0 24px 64px rgba(0,0,0,0.5),
+              0 0 60px rgba(200,255,87,0.04);
+}
+
+/* Card image area */
+.p-img {
+  height:210px;
+  background:var(--ink2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:4.5rem;
+  position:relative; overflow:hidden;
+  transition:background .3s;
+}
+.p-img-inner {
+  transition:transform .6s var(--ease);
+  position:relative; z-index:1;
+}
+.p-card:hover .p-img-inner { transform:scale(1.08) translateY(-4px); }
+.p-img::after {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 120%, rgba(200,255,87,0.07), transparent 60%);
+  opacity:0; transition:opacity .4s;
+}
+.p-card:hover .p-img::after { opacity:1; }
+
+/* Badge */
+.p-badge {
+  position:absolute; top:12px; left:12px; z-index:2;
+  padding:4px 10px;
+  background:rgba(200,255,87,0.1);
+  border:1px solid rgba(200,255,87,0.22);
+  border-radius:100px;
+  font-family:var(--font-m);
+  font-size:0.62rem; color:var(--lime); letter-spacing:0.06em;
+}
+.p-badge.red { background:rgba(255,77,109,0.1); border-color:rgba(255,77,109,0.25); color:var(--red); }
+.p-badge.amber { background:rgba(255,190,11,0.1); border-color:rgba(255,190,11,0.25); color:var(--amber); }
+
+/* Card body */
+.p-body { padding:20px; }
+.p-cat {
+  font-family:var(--font-m); font-size:0.62rem;
+  color:var(--dim); text-transform:uppercase; letter-spacing:0.12em;
+  margin-bottom:5px;
+}
+.p-name {
+  font-size:1.12rem; font-weight:700; letter-spacing:-0.02em;
+  color:var(--text); margin-bottom:5px;
+}
+.p-stars {
+  display:flex; align-items:center; gap:3px; margin-bottom:8px;
+}
+.p-stars .s { color:var(--amber); font-size:0.75rem; }
+.p-stars .rc {
+  font-family:var(--font-m); font-size:0.63rem; color:var(--dim); margin-left:4px;
+}
+.p-desc { font-size:0.8rem; color:var(--muted); line-height:1.55; margin-bottom:10px; }
+.p-micro {
+  font-family:var(--font-m); font-size:0.64rem; color:var(--dim);
+  font-style:italic; margin-bottom:14px; padding:6px 10px;
+  background:rgba(255,255,255,0.03);
+  border-radius:6px; border-left:2px solid var(--line2);
+}
+.p-foot { display:flex; align-items:center; justify-content:space-between; }
+.p-price {
+  font-size:1.22rem; font-weight:800; letter-spacing:-0.03em; font-family:var(--font-m);
+  color:var(--text);
+}
+.p-price sub { font-size:0.65rem; font-weight:400; color:var(--muted); letter-spacing:0; }
+.p-stock { font-family:var(--font-m); font-size:0.63rem; color:var(--red); margin-top:6px; }
+.add-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:9px 18px;
+  background:var(--lime-faint);
+  border:1px solid rgba(200,255,87,0.2);
+  border-radius:100px;
+  color:var(--lime); font-size:0.76rem; font-weight:600;
+  transition: all .22s;
+}
+.add-btn:hover {
+  background:var(--lime); color:#000;
+  border-color:var(--lime);
+  transform:translateY(-2px);
+  box-shadow:0 6px 22px rgba(200,255,87,0.35);
+}
+.add-btn:active { transform:translateY(0); }
+.add-btn.done { background:var(--lime); color:#000; border-color:var(--lime); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TRUST BAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#trust {
+  padding:36px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.trust-row { display:flex; align-items:center; justify-content:center; gap:48px; flex-wrap:wrap; }
+.trust-i { display:flex; align-items:center; gap:9px; font-size:0.78rem; color:var(--muted); }
+.trust-i .ti { font-size:1rem; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TESTIMONIALS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#reviews { padding:90px 0; background:var(--ink2); }
+.t-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));
+  gap:16px; margin-top:44px;
+}
+.t-card {
+  background:var(--ink3);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:24px;
+  opacity:0; transform:translateY(18px);
+  transition: opacity .5s, transform .5s;
+}
+.t-card.in { opacity:1; transform:none; }
+.t-st { display:flex; gap:2px; margin-bottom:10px; }
+.t-st .s { color:var(--amber); font-size:0.78rem; }
+.t-txt {
+  font-size:0.85rem; color:var(--muted); line-height:1.68;
+  margin-bottom:14px; font-style:italic;
+}
+.t-auth { font-family:var(--font-m); font-size:0.65rem; color:var(--dim); letter-spacing:0.06em; text-transform:uppercase; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOOTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+footer {
+  border-top:1px solid var(--line);
+  padding:44px 28px; text-align:center; z-index:2; position:relative;
+}
+.foot-logo { font-size:1.1rem; font-weight:900; letter-spacing:-0.03em; margin-bottom:10px; }
+.foot-logo span { color:var(--lime); }
+.foot-txt { font-family:var(--font-m); font-size:0.65rem; color:var(--dim); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST NOTIFICATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#toast-box {
+  position:fixed; bottom:24px; left:24px; z-index:450;
+  display:flex; flex-direction:column; gap:10px;
+}
+.toast {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 18px;
+  background:var(--ink4);
+  border:1px solid var(--line2);
+  border-radius:12px;
+  font-size:0.78rem; color:var(--muted);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  transform:translateX(-110%);
+  transition:transform .4s var(--spring);
+  max-width:290px;
+  pointer-events:none;
+}
+.toast.show { transform:translateX(0); }
+.toast-ico { font-size:1.15rem; flex-shrink:0; }
+.toast strong { display:block; color:var(--text); font-size:0.8rem; margin-bottom:1px; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   OVERLAY + CART PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#veil {
+  position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(8px);
+  opacity:0; pointer-events:none; transition:opacity .3s;
+}
+#veil.on { opacity:1; pointer-events:all; }
+.qty-controls {
+  display:flex; align-items:center; gap:0;
+  border:1px solid rgba(200,255,87,0.25);
+  border-radius:100px;
+  overflow:hidden;
+  background:var(--lime-faint);
+  height:36px;
+}
+.qty-btn {
+  width:34px; height:36px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.05rem; font-weight:700; color:var(--lime);
+  background:transparent; border:none;
+  transition:background .18s;
+  flex-shrink:0;
+}
+.qty-btn:hover { background:rgba(200,255,87,0.15); }
+.qty-num {
+  font-family:var(--font-m); font-size:0.82rem; font-weight:700;
+  color:var(--lime); min-width:28px; text-align:center;
+  transition:transform .18s var(--spring);
+  line-height:36px;
+}
+.qty-num.bump { transform:scale(1.5); }
+#cart-panel {
+  position:fixed; right:0; top:0; bottom:0; z-index:600;
+  width:min(440px, 100vw);
+  background:var(--ink3);
+  border-left:1px solid var(--line2);
+  display:flex; flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .4s var(--ease);
+}
+#cart-panel.on { transform:translateX(0); }
+.cp-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 24px;
+  border-bottom:1px solid var(--line);
+}
+.cp-title { font-size:1rem; font-weight:800; letter-spacing:-0.02em; }
+.x-btn {
+  width:34px; height:34px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; border:1px solid var(--line2); color:var(--muted);
+  font-size:1rem; transition:all .2s;
+}
+.x-btn:hover { border-color:var(--soft); color:var(--text); }
+.cp-list { flex:1; overflow-y:auto; padding:14px; }
+.cp-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:100%; gap:10px; text-align:center;
+  color:var(--dim); font-family:var(--font-m); font-size:0.75rem;
+}
+.cp-empty-ico { font-size:3rem; opacity:0.3; }
+.cart-item {
+  display:flex; align-items:center; gap:12px;
+  padding:13px;
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--r-sm);
+  margin-bottom:9px;
+  animation:slideR .25s ease;
+}
+@keyframes slideR { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:none} }
+.ci-e { font-size:1.9rem; width:42px; text-align:center; }
+.ci-inf { flex:1; }
+.ci-n { font-weight:600; font-size:0.85rem; margin-bottom:1px; }
+.ci-p { font-family:var(--font-m); font-size:0.72rem; color:var(--lime); }
+.ci-q { font-family:var(--font-m); font-size:0.65rem; color:var(--dim); }
+.ci-rm { color:var(--dim); font-size:0.95rem; padding:5px; transition:color .2s; }
+.ci-rm:hover { color:var(--red); }
+.cp-foot {
+  padding:18px 22px;
+  border-top:1px solid var(--line);
+}
+.cp-total-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.cp-total-label { font-size:0.82rem; color:var(--muted); }
+.cp-total-val { font-family:var(--font-m); font-size:1.4rem; font-weight:700; color:var(--text); }
+.cp-checkout {
+  width:100%; padding:14px;
+  background:var(--lime); color:#000;
+  border-radius:var(--r-sm);
+  font-weight:700; font-size:0.92rem; letter-spacing:0.01em;
+  transition:all .25s;
+}
+.cp-checkout:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(200,255,87,0.42); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CHECKOUT MODAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#co-modal {
+  position:fixed; inset:0; z-index:700;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(14px);
+  opacity:0; pointer-events:none;
+  transition:opacity .4s;
+}
+#co-modal.on { opacity:1; pointer-events:all; }
+.co-box {
+  background:var(--ink3);
+  border:1px solid var(--line2);
+  border-radius:20px;
+  padding:40px;
+  width:min(560px, 95vw);
+  max-height:92vh;
+  overflow-y:auto;
+  transform:translateY(28px) scale(0.98);
+  transition:transform .4s var(--ease);
+}
+#co-modal.on .co-box { transform:translateY(0) scale(1); }
+.co-title { font-size:1.7rem; font-weight:900; letter-spacing:-0.04em; margin-bottom:4px; }
+.co-sub { font-size:0.78rem; color:var(--muted); margin-bottom:28px; font-family:var(--font-m); }
+
+/* Psychological layer */
+.psych-bar {
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:var(--r-sm);
+  padding:14px 16px;
+  margin-bottom:24px;
+  font-family:var(--font-m);
+}
+.pb-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.pb-label { font-size:0.65rem; color:var(--dim); letter-spacing:0.1em; text-transform:uppercase; }
+.pb-val { font-size:0.7rem; color:var(--lime); }
+.pb-track {
+  height:3px; background:var(--ink4); border-radius:2px; overflow:hidden;
+}
+.pb-fill {
+  height:100%;
+  background:linear-gradient(90deg, var(--lime), var(--cyan));
+  border-radius:2px;
+  animation:fillBar 1.5s .6s both;
+}
+@keyframes fillBar { from{width:0} }
+.pb-msg {
+  margin-top:10px; font-size:0.7rem; color:var(--amber); font-style:italic;
+  line-height:1.5;
+}
+
+/* Form */
+.f-sec { font-family:var(--font-m); font-size:0.62rem; color:var(--lime); letter-spacing:0.15em; text-transform:uppercase; margin:20px 0 14px; }
+.f-grp { margin-bottom:13px; }
+.f-grp label { display:block; font-size:0.72rem; color:var(--muted); margin-bottom:6px; font-family:var(--font-m); letter-spacing:0.04em; }
+.f-grp input {
+  width:100%; padding:11px 15px;
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:var(--r-sm);
+  color:var(--text); font-size:0.88rem;
+  transition:border-color .2s;
+}
+.f-grp input:focus { outline:none; border-color:rgba(200,255,87,0.4); }
+.f-grp input::placeholder { color:var(--dim); }
+.f-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.place-btn {
+  width:100%; margin-top:22px; padding:15px;
+  background:var(--lime); color:#000;
+  border-radius:var(--r-sm);
+  font-weight:800; font-size:0.98rem; letter-spacing:0.02em;
+  transition:all .25s; position:relative; overflow:hidden;
+}
+.place-btn:hover { transform:translateY(-2px); box-shadow:0 8px 36px rgba(200,255,87,0.5); }
+.place-btn::after {
+  content:'';
+  position:absolute; inset:0;
+  background:rgba(255,255,255,0);
+  transition:background .15s;
+}
+.place-btn:active::after { background:rgba(255,255,255,0.15); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PROCESSING SCREEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#proc {
+  position:fixed; inset:0; z-index:800;
+  background:var(--ink);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px;
+  opacity:0; pointer-events:none; transition:opacity .5s;
+}
+#proc.on { opacity:1; pointer-events:all; }
+.proc-logo { font-size:1.3rem; font-weight:900; color:var(--lime); letter-spacing:-0.03em; margin-bottom:12px; }
+.proc-spin {
+  width:50px; height:50px;
+  border:2px solid var(--line2);
+  border-top-color:var(--lime);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.proc-msg {
+  font-family:var(--font-m); font-size:0.8rem; color:var(--muted);
+  transition:opacity .25s; text-align:center;
+}
+.proc-steps { min-width:280px; display:flex; flex-direction:column; gap:9px; margin-top:6px; }
+.pstep {
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-m); font-size:0.72rem; color:var(--dim);
+  opacity:0; transform:translateX(-10px);
+  transition:all .4s;
+}
+.pstep.go { opacity:1; transform:none; color:var(--lime); }
+.pstep-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GLITCH REVEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#reveal {
+  position:fixed; inset:0; z-index:900;
+  background:var(--ink);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:28px;
+  opacity:0; pointer-events:none;
+  overflow:hidden;
+}
+#reveal.on { opacity:1; pointer-events:all; }
+
+/* Scanlines */
+#reveal::before {
+  content:'';
+  position:absolute; inset:0; z-index:0;
+  background:repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 6px);
+  pointer-events:none;
+}
+/* Vignette */
+#reveal::after {
+  content:'';
+  position:absolute; inset:0; z-index:0;
+  background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+  pointer-events:none;
+}
+
+.rv-inner { position:relative; z-index:1; }
+.glitch-wrap { position:relative; display:inline-block; margin-bottom:4px; }
+.g404 {
+  font-size:clamp(5rem, 18vw, 13rem);
+  font-weight:900;
+  letter-spacing:-0.07em;
+  line-height:1;
+  color:var(--text);
+  position:relative;
+}
+.g404.glitching {
+  animation:glitch 0.45s steps(2) infinite;
+}
+.g404::before, .g404::after {
+  content:attr(data-text);
+  position:absolute; inset:0;
+  opacity:0;
+}
+.g404.glitching::before {
+  opacity:0.7;
+  color:var(--red);
+  animation:glitch-r .4s steps(2) infinite;
+  clip-path:polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+}
+.g404.glitching::after {
+  opacity:0.7;
+  color:var(--cyan);
+  animation:glitch-b .4s steps(2) infinite;
+  clip-path:polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+}
+@keyframes glitch {
+  0%{transform:skewX(0deg)}
+  20%{transform:skewX(-2deg) translateX(4px)}
+  40%{transform:skewX(1.5deg) translateX(-3px)}
+  60%{transform:skewX(-1deg)}
+  80%{transform:skewX(2deg) translateX(2px)}
+  100%{transform:skewX(0deg)}
+}
+@keyframes glitch-r {
+  0%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 100%{transform:translateX(-2px)}
+}
+@keyframes glitch-b {
+  0%{transform:translateX(4px)} 50%{transform:translateX(-3px)} 100%{transform:translateX(2px)}
+}
+.rv-code {
+  font-family:var(--font-m); font-size:0.75rem; color:var(--dim);
+  letter-spacing:0.15em; margin-bottom:36px;
+}
+.rv-h { font-size:clamp(1.3rem, 3.5vw, 2.2rem); font-weight:800; letter-spacing:-0.03em; color:var(--text); margin-bottom:10px; opacity:0; }
+.rv-h.in { animation:riseIn .6s .1s forwards; }
+.rv-p { font-size:0.92rem; color:var(--muted); max-width:440px; line-height:1.7; margin-bottom:6px; opacity:0; }
+.rv-p.in { animation:riseIn .6s .3s forwards; }
+.rv-money {
+  margin-top:6px; font-family:var(--font-m); font-size:0.8rem;
+  color:var(--lime); opacity:0; padding:10px 20px;
+  background:var(--lime-faint); border:1px solid rgba(200,255,87,0.2);
+  border-radius:100px; display:inline-block;
+}
+.rv-money.in { animation:riseIn .6s .5s forwards; }
+.rv-brand { font-size:1.05rem; font-weight:800; color:var(--text); margin-top:28px; opacity:0; }
+.rv-brand.in { animation:riseIn .6s .7s forwards; }
+.rv-brand span { color:var(--lime); }
+.rv-restart {
+  margin-top:36px;
+  padding:13px 32px;
+  background:transparent;
+  border:1px solid var(--line2);
+  border-radius:100px; color:var(--muted); font-size:0.85rem;
+  transition:all .25s;
+  opacity:0;
+}
+.rv-restart.in { animation:riseIn .6s .9s forwards; }
+.rv-restart:hover { border-color:var(--lime); color:var(--lime); background:var(--lime-faint); }
+
+/* Shake animation for screen */
+@keyframes shake {
+  0%,100%{transform:translate(0,0)}
+  10%{transform:translate(-6px,4px)}
+  20%{transform:translate(6px,-4px)}
+  30%{transform:translate(-4px,6px)}
+  40%{transform:translate(5px,-3px)}
+  50%{transform:translate(-3px,5px)}
+  60%{transform:translate(4px,-4px)}
+  70%{transform:translate(-5px,3px)}
+  80%{transform:translate(3px,-5px)}
+  90%{transform:translate(-4px,4px)}
+}
+body.shake { animation:shake .5s ease; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KEYFRAMES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes riseIn {
+  from{opacity:0;transform:translateY(22px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESPONSIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media(max-width:768px){
+  #nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .stats-row{gap:12px;}
+  .stat-card{padding:16px 22px;}
+  .f-row{grid-template-columns:1fr;}
+  .hero-cta{flex-direction:column;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND CANVAS -->
+<canvas id="bg-canvas"></canvas>
+<div class="noise-overlay"></div>
+
+<!-- CURSOR -->
+<div id="cursor">
+  <div class="c-ring" id="c-ring"></div>
+  <div class="c-dot" id="c-dot"></div>
+</div>
+
+<!-- TOAST BOX -->
+<div id="toast-box"></div>
+
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo">
+    Error404<div class="logo-badge">STORE</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#shop">Shop</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#">Support</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+  <div class="nav-r">
+    <button class="cart-trigger" id="cart-btn">
+      🛒 Cart <span class="cart-num" id="cart-num">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-eyebrow">EST. 404 · PREMIUM NOTHINGNESS · SINCE NEVER</div>
+  <h1 class="hero-h1">
+    Buy What<br>
+    <span class="lime">Doesn't Exist</span>
+  </h1>
+  <p class="hero-sub">
+    Premium products, meticulously curated for needs you <em>feel</em>… but can never fulfill.<br>
+    <strong>Trusted by 10,000+ disappointed customers.</strong>
+  </p>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-n lime-n" data-target="404" data-current="0">0</span>
+      <div class="stat-label">Products Listed</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-n" style="color:var(--red)">∞</span>
+      <div class="stat-label">Items Out of Stock</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-n" data-target="0" data-current="99">99</span>
+      <div class="stat-label">Successful Deliveries</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-n" style="color:var(--amber)" data-target="10000" data-current="0">0</span>
+      <div class="stat-label">Disappointed Customers</div>
+    </div>
+  </div>
+
+  <div class="hero-cta">
+    <button class="btn-lime" onclick="scrollToSection('#shop')">Explore Products</button>
+    <button class="btn-ghost" onclick="scrollToSection('#reviews')">Read Reviews</button>
+  </div>
+
+
+</section>
+
+<!-- ══════════════════════════════════════
+     CATEGORY FILTER
+══════════════════════════════════════ -->
+<div id="cat-section">
+  <div class="cat-bar">
+    <button class="cat-btn on" data-cat="all" onclick="filterCat(this,'all')">All Products</button>
+    <button class="cat-btn" data-cat="Productivity" onclick="filterCat(this,'Productivity')">Productivity</button>
+    <button class="cat-btn" data-cat="Lifestyle" onclick="filterCat(this,'Lifestyle')">Lifestyle</button>
+    <button class="cat-btn" data-cat="Existential" onclick="filterCat(this,'Existential')">Existential</button>
+    <button class="cat-btn" data-cat="Relationships" onclick="filterCat(this,'Relationships')">Relationships</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SHOP / PRODUCTS
+══════════════════════════════════════ -->
+<section id="shop">
+  <div class="container">
+    <div class="shop-header">
+      <div>
+        <div class="sec-label">catalog</div>
+        <h2 class="sec-title">The Collection</h2>
+        <p class="sec-body">Handpicked from nowhere. Shipped never. Returns not applicable because arrival is not guaranteed.</p>
+      </div>
+    </div>
+    <div class="grid" id="p-grid"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     TRUST BAR
+══════════════════════════════════════ -->
+<div id="trust">
+  <div class="container">
+    <div class="trust-row">
+      <div class="trust-i"><span class="ti">🔒</span> Encrypted (Pointlessly)</div>
+      <div class="trust-i"><span class="ti">🚚</span> Free Delivery of Nothing</div>
+      <div class="trust-i"><span class="ti">↩️</span> 30-Day Returns</div>
+      <div class="trust-i"><span class="ti">⭐</span> 4.9 Stars (of Disappointment)</div>
+      <div class="trust-i"><span class="ti">🌍</span> Ships to No Address</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     REVIEWS
+══════════════════════════════════════ -->
+<section id="reviews">
+  <div class="container">
+    <div class="sec-label">verified reviews</div>
+    <h2 class="sec-title">What Customers Are Saying</h2>
+    <p class="sec-body">Real thoughts from real people who received exactly what they ordered.</p>
+    <div class="t-grid" id="t-grid"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+  <div class="foot-logo">Error404<span>Store</span></div>
+  <p class="foot-txt">© 2025 Error 404 Store · All products not found · All rights reserved · No refunds on expectations</p>
+</footer>
+
+<!-- ══════════════════════════════════════
+     VEIL / OVERLAY
+══════════════════════════════════════ -->
+<div id="veil" onclick="closeCart()"></div>
+
+<!-- ══════════════════════════════════════
+     CART PANEL
+══════════════════════════════════════ -->
+<div id="cart-panel">
+  <div class="cp-head">
+    <span class="cp-title">Your Cart</span>
+    <button class="x-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cp-list" id="cp-list">
+    <div class="cp-empty">
+      <div class="cp-empty-ico">🛒</div>
+      <div>Your cart is empty.<br>But that's expected here.</div>
+    </div>
+  </div>
+  <div id="cp-foot" style="display:none" class="cp-foot">
+    <div class="cp-total-row">
+      <span class="cp-total-label">Total</span>
+      <span class="cp-total-val" id="cp-total">₹0</span>
+    </div>
+    <button class="cp-checkout" onclick="openCheckout()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CHECKOUT MODAL
+══════════════════════════════════════ -->
+<div id="co-modal">
+  <div class="co-box">
+    <h2 class="co-title">Secure Checkout</h2>
+    <p class="co-sub">// connection encrypted · nothing to steal · you're completely safe</p>
+
+    <!-- Psychological layer -->
+    <div class="psych-bar">
+      <div class="pb-row">
+        <span class="pb-label">Purchase Intent Analysis</span>
+        <span class="pb-val" id="pb-val">Analyzing…</span>
+      </div>
+      <div class="pb-track">
+        <div class="pb-fill" id="pb-fill" style="width:92%"></div>
+      </div>
+      <div class="pb-msg" id="pb-msg">Analyzing purchase intent…</div>
+    </div>
+
+    <div class="f-sec">// Personal Details</div>
+    <div class="f-grp">
+      <label>Full Name</label>
+      <input type="text" placeholder="Your name" id="f-name">
+    </div>
+    <div class="f-grp">
+      <label>Email Address</label>
+      <input type="email" placeholder="you@example.com" id="f-email">
+    </div>
+    <div class="f-grp">
+      <label>Delivery Address</label>
+      <input type="text" placeholder="Street address" id="f-addr">
+    </div>
+    <div class="f-row">
+      <div class="f-grp"><label>City</label><input type="text" placeholder="City"></div>
+      <div class="f-grp"><label>Pincode</label><input type="text" placeholder="000 000"></div>
+    </div>
+
+    <div class="f-sec">// Payment Details</div>
+    <div class="f-grp">
+      <label>Card Number</label>
+      <input type="text" id="f-card" placeholder="4242 4242 4242 4242" maxlength="19">
+    </div>
+    <div class="f-row">
+      <div class="f-grp"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
+      <div class="f-grp"><label>CVV</label><input type="text" placeholder="•••" maxlength="3"></div>
+    </div>
+
+    <button class="place-btn" onclick="placeOrder()">Confirm & Place Order</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PROCESSING SCREEN
+══════════════════════════════════════ -->
+<div id="proc">
+  <div class="proc-logo">Error404Store</div>
+  <div class="proc-spin"></div>
+  <div class="proc-msg" id="proc-msg">Connecting to payment gateway…</div>
+  <div class="proc-steps">
+    <div class="pstep" id="ps1"><div class="pstep-dot"></div>Verifying payment details</div>
+    <div class="pstep" id="ps2"><div class="pstep-dot"></div>Processing transaction</div>
+    <div class="pstep" id="ps3"><div class="pstep-dot"></div>Confirming with warehouse</div>
+    <div class="pstep" id="ps4"><div class="pstep-dot"></div>Locating products in inventory</div>
+    <div class="pstep" id="ps5"><div class="pstep-dot"></div>Preparing shipment manifest</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     REVEAL SCREEN
+══════════════════════════════════════ -->
+<div id="reveal">
+  <div class="rv-inner">
+    <div class="glitch-wrap">
+      <div class="g404" id="g404" data-text="404">404</div>
+    </div>
+    <div class="rv-code">PRODUCT_NOT_FOUND :: ERR_NULL_INVENTORY :: STATUS_VOID</div>
+    <h2 class="rv-h" id="rv-h">You really tried to buy this? 😏</h2>
+    <p class="rv-p" id="rv-p1">This store sells nothing… except expectations.</p>
+    <p class="rv-p" id="rv-p2" style="margin-top:4px;font-size:0.82rem;">And honestly? You walked right in.</p>
+    <div class="rv-money" id="rv-money">Your money is safe. Your expectations may take longer to recover.</div>
+    <div class="rv-brand" id="rv-brand">Welcome to <span>Prankraft</span> 🎭</div>
+    <button class="rv-restart" id="rv-restart" onclick="restartXP()">↩ Restart Experience</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ─── DATA ─────────────────────────────────────────── */
+const PRODUCTS = [
+  {
+    id:1, name:'Happiness', cat:'Existential', price:9999, emoji:'<img src="jpg/Happiness.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'New Arrival', badgeType:'',
+    desc:'Now available for purchase. Clinical trials inconclusive. Side effects may include temporary smiling.',
+    micro:'"People are definitely pretending to buy this"',
+    stock:'Only 2 left (we think)', rating:4.9, reviews:2847,
+    addedQuip: 'Bold move. Therapists hate this one trick.',
+    notifyQuip: 'We\'ll ping you. Or not. Mostly not.'
+  },
+  {
+    id:2, name:'Motivation Bottle', cat:'Productivity', price:999, emoji:'<img src="jpg/Motivation Bottle.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Bestseller', badgeType:'',
+    desc:'Comes empty. Refills are not sold separately. Directions: fill it yourself. Results: yours to figure out.',
+    micro:'"Highly unnecessary product"',
+    stock:'In stock (somehow)', rating:4.7, reviews:1203,
+    addedQuip: 'Adding to cart was today\'s only productive thing.',
+    notifyQuip: 'We\'ll notify you. Maybe. Check back tomorrow.'
+  },
+  {
+    id:3, name:'Procrastination Timer', cat:'Productivity', price:1499, emoji:'<img src="jpg/Procrastination Timer.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Featured', badgeType:'',
+    desc:'Precisely tracks how long you avoid doing the thing. Results displayed in shame-hours. Batteries sold separately.',
+    micro:'"Technically works as advertised"',
+    stock:'In stock', rating:4.8, reviews:988,
+    addedQuip: 'You\'ll set it up later. It knows.',
+    notifyQuip: 'Notification scheduled. You\'ll dismiss it.'
+  },
+  {
+    id:4, name:'Confidence Subscription', cat:'Lifestyle', price:299, emoji:'<img src="jpg/Confidence Subscription.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'₹299/mo', badgeType:'amber',
+    desc:'Monthly plan. Trial expired at birth. Cancellation is handled automatically by life events.',
+    micro:'"Trial version: expired"',
+    stock:'In stock', rating:4.3, reviews:5541,
+    addedQuip: 'Subscribing is the most confident thing you\'ve done all week.',
+    notifyQuip: 'We\'ll let you know. (You deserve it, probably.)'
+  },
+  {
+    id:5, name:'Closure Kit', cat:'Relationships', price:1999, emoji:'<img src="jpg/Closure Kit.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Out of Stock', badgeType:'red',
+    desc:'Contains everything you need to move on. Currently out of stock. Check back: never.',
+    micro:'"The irony ships for free"',
+    stock:'Out of stock — as expected', rating:4.6, reviews:741,
+    addedQuip: 'Out of stock, just like their communication.',
+    notifyQuip: 'Added to wishlist. The irony remains free.'
+  },
+  {
+    id:6, name:'Jack of All Trades Kit', cat:'Productivity', price:2499, emoji:'<img src="jpg/Jack of All Trades.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Popular', badgeType:'',
+    desc:'Master everything simultaneously. Skills, talent, and expertise not included. Bag is empty but very professional.',
+    micro:'"Skills sold separately (elsewhere)"',
+    stock:'Only 3 left', rating:4.5, reviews:1876,
+    addedQuip: 'Master of cart. That counts.',
+    notifyQuip: 'You\'re already nailing step one: awareness.'
+  },
+  {
+    id:7, name:'Life Pause Button', cat:'Existential', price:4999, emoji:'<img src="jpg/Life Pause Button.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Loading…', badgeType:'amber',
+    desc:'Press to pause everything. Currently loading. Estimated arrival: sometime between now and the heat death of the universe.',
+    micro:'"Still loading since 2019"',
+    stock:'Pre-order (ships never)', rating:4.9, reviews:6200,
+    addedQuip: 'Added. Still buffering, like everything else.',
+    notifyQuip: 'ETA: somewhere between Tuesday and entropy.'
+  },
+  {
+    id:8, name:'Seen-Zone Recovery Pack', cat:'Relationships', price:799, emoji:'<img src="jpg/Seen-Zone Recovery Pack.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'On Sale', badgeType:'',
+    desc:'Includes read-receipt shield, three dignity patches, and a 40-page guide on pretending you didn\'t notice.',
+    micro:'"No response is also a response"',
+    stock:'In stock', rating:4.4, reviews:3321,
+    addedQuip: 'Added. They still won\'t reply, but at least you tried.',
+    notifyQuip: 'We won\'t leave you on read. (Unlike them.)'
+  },
+  {
+    id:9, name:'Success Blueprint', cat:'Productivity', price:null, emoji:'<img src="jpg/Success Blueprint.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Coming Soon', badgeType:'amber',
+    desc:'A complete, step-by-step roadmap to absolute success. Currently finalizing. Delivery date: coming soon. Forever.',
+    micro:'"The most pre-ordered item in history"',
+    stock:'Pre-order available', rating:4.8, reviews:412,
+    addedQuip: 'Pre-ordered. Step 1 complete. Steps 2–∞: TBD.',
+    notifyQuip: 'On the list! Success may or may not follow.'
+  },
+  {
+    id:10, name:'Focus Headphones', cat:'Lifestyle', price:1999, emoji:'<img src="jpg/Focus Headphones.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Limited', badgeType:'',
+    desc:'Zero audio output. Maximum pressure. Simulates the feeling of being extremely productive without any evidence.',
+    micro:'"0 decibels, 100% aesthetic"',
+    stock:'Only 1 left in universe', rating:4.2, reviews:2108,
+    addedQuip: 'Added. Now look busy. You\'ve earned it.',
+    notifyQuip: 'The universe has one left. Probably.'
+  },
+  {
+    id:11, name:'Inner Peace Premium', cat:'Existential', price:12999, emoji:'<img src="jpg/Inner Peace.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'Premium', badgeType:'',
+    desc:'One-time purchase. Lifetime warranty void if disturbed by notifications, relationships, or Tuesday mornings.',
+    micro:'"0 verified deliveries — all 5 stars"',
+    stock:'In stock', rating:4.9, reviews:89,
+    addedQuip: 'Added to cart. Your Daily mornings remain unresolved.',
+    notifyQuip: 'Breathe. We\'ll let you know when peace is back.'
+  },
+  {
+    id:12, name:'Chemistry Set', cat:'Relationships', price:3499, emoji:'<img src="jpg/Chemistry Set.jpg" style="width:100%;height:100%;object-fit:cover;">',
+    badge:'New', badgeType:'',
+    desc:'Contains zero chemicals. Intended for people attempting to manufacture romantic connection from scratch.',
+    micro:'"Reaction rate: 0.0% — still somehow popular"',
+    stock:'In stock', rating:4.1, reviews:550,
+    addedQuip: 'Added! Reaction rate unchanged. Still trying.',
+    notifyQuip: 'No sparks yet but we believe in you. Sort of.'
+  },
+];
+
+const REVIEWS = [
+  { name:'Arjun S.', product:'Happiness', text:'"I ordered Happiness three weeks ago. Beautiful packaging. The box arrived perfectly empty. 10/10, would spiral again."', stars:5 },
+  { name:'Priya M.', product:'Closure Kit', text:'"Still waiting for my Closure Kit to arrive. Ironically, not receiving it gave me the closure I needed."', stars:5 },
+  { name:'Rahul K.', product:'Motivation Bottle', text:'"Bottle arrived empty as described. I filled it with cold brew. Honestly the same experience."', stars:4 },
+  { name:'Sneha L.', product:'Focus Headphones', text:'"No sound, maximum pressure. Wore them in a meeting. Everyone assumed I was very busy. Career accidentally saved."', stars:5 },
+  { name:'Dev P.', product:'Confidence Subscription', text:'"Trial had expired before the package reached me. I consider this extremely accurate product description."', stars:4 },
+  { name:'Ananya R.', product:'Life Pause Button', text:'"Mine is still loading. I appreciate the honesty. Most things in my life are also still loading."', stars:5 },
+];
+
+const BUYERS = ['Rahul','Sneha','Priya','Arjun','Dev','Ananya','Kiran','Meera','Rohan','Isha','Vikram','Neha'];
+const MOODS  = ['😶','🤔','😐','😑','🙃','😮','😏','🫤'];
+
+/* ─── STATE ─────────────────────────────────────────── */
+let cart = [];
+let activeCat = 'all';
+const cardQty = {};
+
+/* ─── CURSOR ─────────────────────────────────────────── */
+const dot   = document.getElementById('c-dot');
+const ring  = document.getElementById('c-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx+'px'; dot.style.top = my+'px';
+});
+(function lerpCursor(){
+  rx += (mx-rx)*0.25; ry += (my-ry)*0.25;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(lerpCursor);
+})();
+document.querySelectorAll('button, a, input, .p-card').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+/* ─── ANIMATED BACKGROUND ────────────────────────────── */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resizeCanvas() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random()*W; this.y = Math.random()*H;
+    this.r = Math.random()*1.5+0.4;
+    this.vx = (Math.random()-.5)*0.25; this.vy = (Math.random()-.5)*0.25;
+    this.a = Math.random()*0.4+0.05; this.life = Math.random()*400+200;
+    this.age = 0;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy; this.age++;
+    if(this.age > this.life) this.reset();
+  }
+  draw() {
+    const fade = Math.sin((this.age/this.life)*Math.PI);
+    ctx.globalAlpha = this.a * fade;
+    ctx.fillStyle = '#c8ff57';
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+  }
+}
+for(let i=0;i<70;i++) particles.push(new Particle());
+function animBg() {
+  ctx.clearRect(0,0,W,H);
+  // Very subtle gradient
+  const grd = ctx.createRadialGradient(W/2,H*0.4,0,W/2,H*0.4,W*0.6);
+  grd.addColorStop(0,'rgba(200,255,87,0.025)');
+  grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,W,H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+/* ─── SCROLL ANIMATIONS ──────────────────────────────── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1 });
+
+/* ─── STAT COUNTER ANIMATION ─────────────────────────── */
+function animateCounter(el, target, duration=4000) {
+  const start = parseInt(el.dataset.current) || 0;
+  const diff = target - start;
+  const startTime = performance.now();
+  function step(now) {
+    const p = Math.min((now-startTime)/duration,1);
+    const ease = 1 - Math.pow(1-p,4);
+    el.textContent = Math.round(start + diff*ease).toLocaleString();
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+// Observe hero for stat animation
+const heroIO = new IntersectionObserver(entries => {
+  if(entries[0].isIntersecting) {
+    document.querySelectorAll('.stat-n[data-target]').forEach(el => {
+      animateCounter(el, parseInt(el.dataset.target));
+    });
+    heroIO.disconnect();
+  }
+}, { threshold: 0.5 });
+heroIO.observe(document.querySelector('.stats-row'));
+
+/* ─── RENDER PRODUCTS ─────────────────────────────────── */
+function renderProducts(filter) {
+  const grid = document.getElementById('p-grid');
+  const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+
+  grid.innerHTML = list.map((p, i) => {
+    const qty = cartQtyFor(p.id);
+    const ctrlsHtml = buildCartCtrl(p, qty);
+    return `
+    <div class="p-card" data-id="${p.id}" style="animation-delay:${i*0.055}s"
+         onmousemove="tilt(event,this)" onmouseleave="untilt(this)">
+      <div class="p-img">
+        <div class="p-img-inner">${p.emoji}</div>
+        ${p.badge ? `<div class="p-badge ${p.badgeType}">${p.badge}</div>` : ''}
+      </div>
+      <div class="p-body">
+        <div class="p-cat">${p.cat}</div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-stars">
+          ${'★'.repeat(Math.floor(p.rating))}${p.rating%1?'☆':''}
+          <span class="rc">${p.rating} · ${p.reviews.toLocaleString()} reviews</span>
+        </div>
+        <div class="p-desc">${p.desc}</div>
+        <div class="p-micro">${p.micro}</div>
+        <div class="p-stock">${stockIcon(p.stock)} ${p.stock}</div>
+        <div class="p-foot" style="margin-top:14px">
+          <div>
+            <div class="p-price">
+              ${p.price
+                ? '₹' + p.price.toLocaleString() + (p.name==='Confidence Subscription'?'<sub>/mo</sub>':'')
+                : '<span style="color:var(--amber);font-size:0.85rem;font-family:var(--font-m)">Coming Soon™</span>'}
+            </div>
+          </div>
+          <div id="ctrl-${p.id}">${ctrlsHtml}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.p-card').forEach((c,i) => {
+      setTimeout(() => { c.classList.add('in'); io.observe(c); }, i*55);
+    });
+  }, 30);
+}
+
+function cartQtyFor(id) {
+  const item = cart.find(x => x.id === id);
+  return item ? item.qty : 0;
+}
+
+function buildCartCtrl(p, qty) {
+  if (!p.price) {
+    return `<button class="add-btn" onclick="addItem(${p.id})">🔔 Notify</button>`;
+  }
+  if (qty === 0) {
+    return `<button class="add-btn" id="ab${p.id}" onclick="addItem(${p.id})">+ Add to Cart</button>`;
+  }
+  return `
+    <div class="qty-controls">
+      <button class="qty-btn" onclick="decreaseItem(${p.id})">−</button>
+      <span class="qty-num" id="qn-${p.id}">${qty}</span>
+      <button class="qty-btn" onclick="increaseItem(${p.id})">+</button>
+    </div>`;
+}
+
+function refreshCardCtrl(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const qty = cartQtyFor(id);
+  const el = document.getElementById('ctrl-'+id);
+  if (el) el.innerHTML = buildCartCtrl(p, qty);
+}
+
+function stockIcon(s) {
+  if(s.includes('Out')) return '✕';
+  if(s.includes('Only')) return '⚠';
+  if(s.includes('Pre')) return '◆';
+  return '';
+}
+
+/* ─── 3D TILT ─────────────────────────────────────────── */
+function tilt(e, el) {
+  const r = el.getBoundingClientRect();
+  const x = (e.clientX - r.left - r.width/2) / r.width;
+  const y = (e.clientY - r.top - r.height/2) / r.height;
+  el.style.transform = `perspective(900px) rotateX(${-y*9}deg) rotateY(${x*9}deg) translateY(-5px)`;
+}
+function untilt(el) {
+  el.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateY(0)';
+}
+
+/* ─── CATEGORY FILTER ─────────────────────────────────── */
+function filterCat(btn, cat) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderProducts(cat);
+}
+
+/* ─── CART ─────────────────────────────────────────────── */
+function addItem(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if(!p || !p.price) {
+    toast('🔔 You\'ll be notified when it ships. (Never.)', false);
+    return;
+  }
+  const ex = cart.find(x => x.id === id);
+  if(ex) ex.qty++;
+  else cart.push({...p, qty:1});
+  updateCart();
+  refreshCardCtrl(id);
+  bumpCartNum();
+  toast(`${p.emoji} ${p.name} added to cart`, true, p.addedQuip || '');
+}
+function increaseItem(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const ex = cart.find(x => x.id === id);
+  if (ex) {
+    ex.qty++;
+    updateCart();
+    // Animate the number in-place without re-rendering the control
+    const numEl = document.getElementById('qn-'+id);
+    if (numEl) {
+      numEl.textContent = ex.qty;
+      numEl.classList.add('bump');
+      setTimeout(() => numEl.classList.remove('bump'), 250);
+    }
+    bumpCartNum();
+    // Subtle quip only every 3rd add to avoid spam
+    if (ex.qty % 3 === 0) {
+      toast('🛍️', p.name + ' ×'+ex.qty, 'At this point it\'s a lifestyle.');
+    }
+  }
+}
+
+function decreaseItem(id) {
+  const ex = cart.find(x => x.id === id);
+  if (!ex) return;
+  ex.qty--;
+  if (ex.qty <= 0) {
+    cart = cart.filter(x => x.id !== id);
+    refreshCardCtrl(id); // back to "Add to Cart" button
+  } else {
+    const numEl = document.getElementById('qn-'+id);
+    if (numEl) {
+      numEl.textContent = ex.qty;
+      numEl.classList.add('bump');
+      setTimeout(() => numEl.classList.remove('bump'), 250);
+    }
+  }
+  updateCart();
+  bumpCartNum();
+}
+
+function removeItem(id) {
+  cart = cart.filter(x => x.id !== id);
+  refreshCardCtrl(id);
+  updateCart();
+  bumpCartNum();
+}
+
+function bumpCartNum() {
+  const cn = document.getElementById('cart-num');
+  cn.classList.add('pop');
+  setTimeout(() => cn.classList.remove('pop'), 400);
+}
+
+function updateCart() {
+  const total = cart.reduce((s,x) => s+x.price*x.qty, 0);
+  const count = cart.reduce((s,x) => s+x.qty, 0);
+  document.getElementById('cart-num').textContent = count;
+  document.getElementById('cp-total').textContent = '₹'+total.toLocaleString();
+  const list = document.getElementById('cp-list');
+  const foot = document.getElementById('cp-foot');
+  if (!cart.length) {
+    list.innerHTML = `<div class="cp-empty"><div class="cp-empty-ico">🛒</div><div>Your cart is empty.<br>As expected.</div></div>`;
+    foot.style.display = 'none';
+  } else {
+    list.innerHTML = cart.map(it => `
+      <div class="cart-item">
+        <div class="ci-e">${it.emoji}</div>
+        <div class="ci-inf">
+          <div class="ci-n">${it.name}${it.qty>1?' ×'+it.qty:''}</div>
+          <div class="ci-p">₹${(it.price*it.qty).toLocaleString()}</div>
+          <div class="ci-q">Qty: ${it.qty}</div>
+        </div>
+        <button class="ci-rm" onclick="removeItem(${it.id})">✕</button>
+      </div>
+    `).join('');
+    foot.style.display = 'block';
+  }
+}
+function openCart() {
+  document.getElementById('cart-panel').classList.add('on');
+  document.getElementById('veil').classList.add('on');
+}
+function closeCart() {
+  document.getElementById('cart-panel').classList.remove('on');
+  document.getElementById('veil').classList.remove('on');
+}
+document.getElementById('cart-btn').addEventListener('click', openCart);
+
+/* ─── CHECKOUT ─────────────────────────────────────────── */
+function openCheckout() {
+  if(!cart.length) return;
+  closeCart();
+  document.getElementById('co-modal').classList.add('on');
+  // Animate psych bar
+  setTimeout(() => {
+    const msgs = [
+      'Analyzing purchase intent…',
+      'Confidence: 82% impulse decision',
+      'Are you sure you need this… or avoiding something else?'
+    ];
+    let i=0;
+    const el = document.getElementById('pb-msg');
+    const pv = document.getElementById('pb-val');
+    pv.textContent = 'Analyzing…';
+    const cyc = setInterval(() => {
+      i++;
+      el.textContent = msgs[Math.min(i, msgs.length-1)];
+      if(i===1) pv.textContent = 'Impulse: 82%';
+      if(i===2) pv.textContent = 'Avoidance: High';
+      if(i >= msgs.length) clearInterval(cyc);
+    }, 1100);
+  }, 600);
+}
+document.getElementById('co-modal').addEventListener('click', e => {
+  if(e.target === document.getElementById('co-modal'))
+    document.getElementById('co-modal').classList.remove('on');
+});
+// Card formatter
+document.getElementById('f-card').addEventListener('input', function() {
+  let v = this.value.replace(/\D/g,'').substring(0,16);
+  this.value = v.replace(/(.{4})/g,'$1 ').trim();
+});
+
+/* ─── PLACE ORDER ─────────────────────────────────────── */
+function placeOrder() {
+  document.getElementById('co-modal').classList.remove('on');
+  startProcessing();
+}
+function startProcessing() {
+  const proc = document.getElementById('proc');
+  proc.classList.add('on');
+  const msgs = [
+    'Connecting to payment gateway…',
+    'Verifying your details…',
+    'Processing transaction…',
+    'Confirming order…',
+    'Locating products…'
+  ];
+  const steps = ['ps1','ps2','ps3','ps4','ps5'];
+  let i = 0;
+  function tick() {
+    if(i < steps.length) {
+      document.getElementById('proc-msg').textContent = msgs[i];
+      document.getElementById(steps[i]).classList.add('go');
+      i++; setTimeout(tick, 850);
+    } else { setTimeout(triggerReveal, 500); }
+  }
+  setTimeout(tick, 500);
+}
+
+/* ─── GLITCH TRIGGER ──────────────────────────────────── */
+function triggerReveal() {
+  const proc = document.getElementById('proc');
+  // Flicker out processing screen
+  let f = 0;
+  const flicker = setInterval(() => {
+    proc.style.opacity = f%2===0 ? '0' : '1';
+    f++;
+    if(f > 16) {
+      clearInterval(flicker);
+      proc.style.opacity = '';
+      proc.classList.remove('on');
+      // Shake body
+      document.body.classList.add('shake');
+      setTimeout(() => document.body.classList.remove('shake'), 600);
+      // Show reveal
+      setTimeout(showReveal, 200);
+    }
+  }, 60);
+}
+
+function showReveal() {
+  const rv = document.getElementById('reveal');
+  rv.classList.add('on');
+  // Glitch the 404
+  const g = document.getElementById('g404');
+  g.classList.add('glitching');
+  setTimeout(() => g.classList.remove('glitching'), 2000);
+  // Sequence reveal elements
+  const seq = [
+    { id:'rv-h', delay:350 },
+    { id:'rv-p1', delay:600 },
+    { id:'rv-p2', delay:850 },
+    { id:'rv-money', delay:1100 },
+    { id:'rv-brand', delay:1350 },
+    { id:'rv-restart', delay:1600 },
+  ];
+  seq.forEach(({id, delay}) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      el.classList.add('in');
+    }, delay);
+  });
+}
+
+/* ─── RESTART ─────────────────────────────────────────── */
+function restartXP() {
+  cart = [];
+  updateCart();
+  // Reset reveal elements
+  PRODUCTS.forEach(p => refreshCardCtrl(p.id));
+  ['rv-h','rv-p1','rv-p2','rv-money','rv-brand','rv-restart'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('in'); el.style.animation=''; }
+  });
+  // Reset processing steps
+  ['ps1','ps2','ps3','ps4','ps5'].forEach(id => document.getElementById(id).classList.remove('go'));
+  document.getElementById('pb-msg').textContent = 'Analyzing purchase intent…';
+  document.getElementById('pb-val').textContent = 'Analyzing…';
+  document.getElementById('reveal').classList.remove('on');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ─── TOAST NOTIFICATIONS ─────────────────────────────── */
+function toast(msg, isAdd=true, quip='') {
+  const box = document.getElementById('toast-box');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-ico">${isAdd?'🛍️':'🔔'}</span><div><strong>${msg}</strong>
+      ${quip
+        ? `<span style="display:block;font-size:0.7rem;font-style:italic;margin-top:2px;color:var(--dim)">${quip}</span>`
+        : '<span>just now</span>'
+      }
+    </div>`;
+  box.appendChild(t);
+  requestAnimationFrame(() => { requestAnimationFrame(() => t.classList.add('show')); });
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 1000);
+  }, 3500);
+}
+function fakeToast() {
+  const n = BUYERS[Math.floor(Math.random()*BUYERS.length)];
+  const p = PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];
+  const m = MOODS[Math.floor(Math.random()*MOODS.length)];
+  toast(`${m} ${n} just purchased ${p.name}`, true, p.addedQuip || '');
+}
+setTimeout(fakeToast, 3500);
+setInterval(fakeToast, 20000);
+
+/* ─── RENDER REVIEWS ──────────────────────────────────── */
+function renderReviews() {
+  const grid = document.getElementById('t-grid');
+  grid.innerHTML = REVIEWS.map(r => `
+    <div class="t-card">
+      <div class="t-st">${'★'.repeat(r.stars)}</div>
+      <p class="t-txt">${r.text}</p>
+      <div class="t-auth">— ${r.name} · Verified purchase of ${r.product}</div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.t-card').forEach(c => io.observe(c));
+}
+
+/* ─── SCROLL HELPER ───────────────────────────────────── */
+function scrollToSection(sel) {
+  document.querySelector(sel)?.scrollIntoView({ behavior:'smooth' });
+}
+
+/* ─── NAV SCROLL ──────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ─── INIT ────────────────────────────────────────────── */
+renderProducts('all');
+renderReviews();
+</script>
+</body>
+</html>
